@@ -1,0 +1,203 @@
+\documentclass{homework}
+\usepackage{lipsum}
+\usepackage{alltt}
+\usepackage{cancel}
+\usepackage{amsthm}
+\usepackage{cleveref}
+\usepackage{upgreek}
+\usepackage{mathrsfs}
+\usepackage{tikz}
+\usepackage{units}
+\usetikzlibrary{positioning}
+\usetikzlibrary{graphs}
+
+\DeclareMathOperator{\cov}{cov}
+
+\title{Kevin Joyce}
+\course{Math 491 - Big Data Analytics - Homework 1}
+\author{Kevin Joyce}
+\docdate{February 18, 2015}
+\begin{document} 
+\newcommand{\figref}[1]{\figurename~\ref{#1}}
+\renewcommand{\bar}{\overline}
+\renewcommand{\hat}{\widehat}
+\renewcommand{\SS}{\mathcal S}
+\newcommand{\HH}{\mathscr H}
+\newcommand{\mom}{\widetilde}
+\newcommand{\mle}{\widehat \Uptheta}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\todist}{\stackrel{D}\longrightarrow}
+\newcommand{\toprob}{\stackrel{p}\longrightarrow}
+\newcommand{\TTheta}{\overline{\underline \Theta} }
+\newcommand{\del}{\partial}
+\newcommand{\approxsim}{\overset{\cdotp}{\underset{\cdotp}{\sim}}}
+\newcommand{\RSS}{\ensuremath{\mathrm{RSS}}}
+\newcommand{\MSE}{\ensuremath{\mathrm{MSE}}}
+\newcommand{\SE}{\ensuremath{\mathrm{SE}}}
+\newcommand{\TSS}{\ensuremath{\mathrm{TSS}}}
+\newcommand{\Var}{\ensuremath{\mathrm{Var}}}
+\newcommand{\SSReg}{\ensuremath{\mathrm{SSReg}}}
+\renewcommand{\a}[1]{{\color{red} \it #1}}
+
+Let $(x_1,x_2,\dots,x_n)$ be a sequence of vectors:
+$$
+  x_i = \begin{bmatrix} x_i^1 \\ \vdots \\ x_i^m \end{bmatrix},\,\,i = 1,\dots,n.
+$$
+In statistics one often has to compute the \emph{sample mean} vector
+$$
+  \bar x = \frac 1n \sum_{i=1}^n x_i
+$$
+and the \emph{sample covariance} (or \emph{variance-covariance}) matrix
+$$
+  \bar V = \frac{1}{n-1} \sum_{i=1}^n (x_i - \bar x)(x_i - \bar x)^T
+$$
+where $x^T$ is the transpose of $x$.
+
+\begin{problem}{}
+  What \emph{canonical} form of information would you suggest to represent the sequence $(x_1,x_2,\dots,x_n)$ in order to compute the sample mean vector and the sample covariance matrix?
+
+  Verify that all of the ``desirable'' properties of canonical information are satisfied.
+\end{problem}
+
+\begin{solution}
+  Consider the scalar-vector-matrix triple $(n,s,T)$ where
+  $$
+  n = \sum_{i=1}^n 1,\quad s = \sum_{i=1}^n x_i,\quad\text{and}\quad T= \sum_{i=1}^n x_ix_i^T.
+  $$
+  \begin{enumerate}[(a)]
+    \item \textbf{Uniqueness:} Note that $(n,s,T)$ is uniquely determined as each is a function of well-defined vector operations.
+      \begin{enumerate}[(i)]
+	\item \textbf{Elementary} canonical information: A single observation has the representation
+	  $$
+	  x \mapsto (1,x,xx^T).
+	  $$
+	\item \textbf{Empty} canonical information: Empty information has the representation
+	  $$
+	  \{\} \mapsto (0,0,0),
+	  $$
+	  where each $0$ is the respective scalar, vector, and matrix additive identity.
+      \end{enumerate}
+    \item \textbf{Composition} operation: Let $(n,s,T) \oplus (n',s',T') := (n+n', s+s', T+T')$. Commutativity and associativity are inherited directly from the respective additions for scalars, vectors, and matrices.  Moreover, the neutral element consists of the triple of additive identities $(0,0,0)$.
+    \item \textbf{Update} observation: Given $x_{n+1}$, we can update via the following schematic:
+      \begin{tikzpicture} 
+	\draw[-latex]{ (0,0) node[left]{$(S,T,n)$} -- (1,0) node[right]{$\oplus$} };
+	\draw[-latex]{ (1.55,0) node[right]{} -- (3,0) node[right]{$(n+1,s+x_{n+1}, T + x_{n+1}{x_{n+1}}^T)$} }; 
+	\draw[-latex]{ (0,-.7)  node[below left]{$x_{n+1}$} -- (1,-.1) node[below left]{}};
+      \end{tikzpicture}
+
+      Note that this is exactly the same operation one obtains by composing with the elementary element.
+    \item \textbf{Completeness}: Recovering $\bar x$ is immediately given by $ \bar x = \frac sn $. Some matrix algebra reveals
+      \begin{align*}
+	\bar V 
+	&= \frac{1}{n-1} \sum_{i=1}^n (x_i - \bar x)(x_i - \bar x)^T \\
+	&= \frac{1}{n-1}\left\{ \sum_{i=1}^n x_ix_i^T - \bar x \left(\sum_{i=1}^n x_i \right)^T - \left(\sum_{i=1}^n x_i\right) \bar x^T + n\bar x \bar x^T\right\} \\
+	&= \frac{1}{n-1}\left\{T - \frac sn s^T - s \left(\frac sn\right)^T + n \frac sn \left(\frac sn\right)^T \right\} \\
+	&= \frac{1}{n-1}\left\{T - \frac 1n ss^T\right\}.
+      \end{align*}
+      Hence, we can recover each statistic using only the canonical information.
+
+    \item Note that we require $n \ge 1$ to compute $\bar x$ and $n\ge 2$ in order to compute $\bar V$. Thus the minimum number of observations to compute $(\bar x, \bar V)$ is 2.
+  \end{enumerate}
+\end{solution}
+
+\problem{* What \emph{explicit} form of information would you suggest to represent the sequence $(x_1,x_2,\dots,x_n)$? It should contain $\bar x$ and $\bar V$ and, perhaps, something else.}
+
+\begin{solution}
+  In the spirit of minimizing the number of quantities to keep track of, we can use the explicit variables $(\bar x, \bar V, n)$ to form an information system. 
+
+  \textbf{(a) Uniqueness} follows from the fact that both computations are unique with respect to any representation (in particular, permutation of the coordinates). 
+  However, we lack both a well-defined \textbf{(i) Elementary} and \textbf{(ii) Empty} element as both $\bar x$ and $\bar V$ are undefined when $n = 0$ and $\bar V$ is undefined when $n=1$.
+
+  To define the composition operation, let us first denote the map that takes the canonical information to the data in \textbf{Problem 1(d) Completeness}
+  $$
+    \tau(n,s,T) = (n,\bar x, \bar V).
+  $$
+  Observe 
+  \begin{align*}
+    \bar V &= \frac 1{n-1}\left( T - \frac{ss^T}{n}\right) \\
+    \iff T &= (n-1)\bar V + \frac 1n (n\bar x)(n\bar x)^T = (n-1)\bar V + n \bar x \bar x^T
+  \end{align*}
+  Hence, $\tau$ is invertible by
+  $$
+  \tau^{-1}(n,\bar x,\bar V) = \Big(n,\,\, n \bar x,\,\, (n-1)\bar V + n \bar x\bar x^T \Big).
+  $$
+  Schematically, we can construct the \textbf{(b) Composition} operation 
+  \begin{center}
+    \begin{tikzpicture}[node distance=1em and 2em,>=latex]
+    \node (tplus) [] {$\tilde\oplus:$};
+    \node (n1) [above right=of tplus] {$(n,\bar x, \bar V)$};
+    \node (n2) [below right=of tplus] {$(n',\bar x',\bar V')$};
+    \node (tin1) [right=of n1] {$(n,s,T)$};
+    \node (tin2) [right=of n2] {$(n',s',T')$};
+    \node (plus) [below right=of tin1] {$\oplus$};
+
+    \node (combined) [right=of plus] {$(\tilde n,\tilde s,\tilde T)$};
+    \node (result) [right=of combined] {$(\tilde n,\tilde{\bar x},\tilde {\bar V})$};
+
+    %\graph[use existing nodes]{
+    %n1 -> tin1 -> plus;
+    %n2 -> tin2 -> plus;
+    %plus -> combined -> result;
+    \draw[->]
+      (n1) edge node[above] {$\tau^{-1}$}(tin1)
+      (n2) edge node[above] {$\tau^{-1}$} (tin2)
+      (tin1) edge (plus)
+      (tin2) edge (plus)
+      (plus) edge (combined) 
+      (combined) edge node[above] {$\tau$} (result)
+    ;
+  \end{tikzpicture}
+\end{center}
+The commutative monoid properties are inherited from $\oplus$ in Problem 1. I.e.
+\begin{align*}
+  (n,\bar x,\bar V)\tilde\oplus(n',\bar x',\bar V') 
+  &= \tau\Big(\tau^{-1}(n,\bar x,\bar V)\oplus\tau^{-1}(n',\bar x',\bar V')\Big) \\ 
+  &= \tau\Big(\tau^{-1}(n',\bar x',\bar V')\oplus\tau^{-1}(n,\bar x,\bar V)\Big) \\
+  &= (n',\bar x',\bar V')\tilde\oplus(n,\bar x,\bar V) 
+  \intertext{ and }
+  \Big((n,\bar x,\bar V)\tilde\oplus(n',\bar x',\bar V')\Big)\tilde\oplus(n'',\bar x'',\bar V'')
+  &= \tau\Big(\tau^{-1}(n',\bar x',\bar V')\oplus\tau^{-1}(n,\bar x,\bar V)\Big)\tilde\oplus(n'',\bar x'',\bar V'')\\
+  &= \tau\bigg(\tau^{-1}\tau\Big(\tau^{-1}(n',\bar x',\bar V')\oplus\tau^{-1}(n,\bar x,\bar V)\Big)\oplus\tau^{-1}(n'',\bar x'',\bar V'')\bigg)\\
+  &= \tau\bigg(\tau^{-1}(n',\bar x',\bar V')\oplus\tau^{-1}\tau\Big(\tau^{-1}(n,\bar x,\bar V)\oplus\tau^{-1}(n'',\bar x'',\bar V'')\Big)\bigg)\\
+  &= \tau\bigg(\tau^{-1}(n',\bar x',\bar V')\oplus\tau^{-1}\Big((n,\bar x,\bar V)\tilde\oplus(n'',\bar x'',\bar V'')\Big)\bigg)\\
+  &= (n,\bar x,\bar V)\tilde\oplus\Big((n',\bar x',\bar V')\tilde\oplus(n'',\bar x'',\bar V'')\Big)
+  \intertext{ and }
+  (n,\bar x,\bar V)\tilde\oplus(0,0,0)  
+  & = \tau(\tau^{-1}(n,\bar x,\bar V)\oplus(0,0\cdot0,(0-1)0 + 0)) \\
+  & = \tau\tau^{-1}(n,\bar x,\bar V)\\
+  & = (n,\bar x,\bar V).
+\end{align*}
+Explicitly, this results in the expression $ (n,\bar x,\bar V)\tilde\oplus(n',\bar x',\bar V') = (\tilde n, \tilde{\bar x},\tilde{\bar V})$ where
+$$
+  \tilde n = n + n',\quad \tilde x = s + s' = n\bar x + n'\bar x',\\
+$$
+and
+\begin{align*}
+\tilde{\bar V} &= (T + T') + \frac 1{n+ n'}(s + s')(s + s')^T \\
+&= \Big( (n-1)\bar V + n\bar x\bar x^T + (n'-1)\bar V' + n'\bar x'\bar x'^T \Big) + \frac 1{n+n'}(n\bar x + n'\bar x')(n\bar x + n'\bar x')^T\\
+&= \Big( (n-1)\bar V + n\bar x\bar x^T + (n'-1)\bar V' + n'\bar x'\bar x'^T \Big) + \frac 1{n+n'}\big(n\bar x\bar x^T + n'n(\bar x'\bar x + \bar x {\bar x'}^T) + n'^2 \bar x'{\bar x'}^T\big).
+\intertext{This suggests that if we wish to save on computation time, we could add to the canonical information $W = \bar x \bar x'$, and the expression above simplifies to}
+\dots &= \Big( (n-1)\bar V + nW + (n'-1)\bar V' + n'W' \Big) + \frac 1{n+n'}\big(nW + n'n(\bar x'\bar x + \bar x {\bar x'}^T) + n'^2 W'\big).
+\end{align*}
+
+The \textbf{(c) Update} map is very similar to the one derived for scalar mean and variance:
+\begin{align*}
+  \bar x_{n+1} 
+  &= \frac 1{n+1} \sum_{i=1}^{n+1} \\
+  &= \frac n{n+1} \bar x_n + \frac 1{n+1} x_{n+1}\\
+  &= \bar x_n + \frac1{n+1}(x_{n+1} - \bar x_n),
+  \intertext{and}
+  \bar V_{n+1} 
+  &= \frac 1n \sum_{i=1}^{n+1} (x_i - \bar x_i)(x_ - \bar x_i)^T\\
+  &= \frac {n-1}{n} \bar V_n + \frac 1n(x_{n+1} - \bar x_{n+1})(x_{n+1} - \bar x_{n+1})^T\\
+  &= \bar V_n + \frac 1n\Big((x_{n+1} - \bar x_{n+1})(x_{n+1} - \bar x_{n+1}) - \bar V_n\Big).
+\end{align*}
+Note that $\bar V_{n+1}$ is expressed in terms of $\bar x_{n+1}$, so the computation for $\bar x_{n+1}$ should precede $\bar V_{n+1}$.
+Also, this suggests that $(0,0,0)$ and $(1,x_1,0)$ could be used for the \textbf{(ii) Empty} and \textbf{(i) Elementary} elements respectively.
+
+Being an explicit representation, this is clearly \textbf{(e) Complete}, and as before, meaningful $\bar x$ and $\bar V$ are obtained only for $n\ge 2$.
+\end{solution}
+
+\end{document} 
+
+

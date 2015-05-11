@@ -1,0 +1,21 @@
+R : matrix([0,0,0],[1,0,0],[1,1,0]);
+((R + transpose(R)));
+((R + transpose(R)))^^2;
+((R + transpose(R)))^^3;
+((R + transpose(R)))^^4;
+
+M: invert(r*(R + transpose(R)) + ident(3));
+f1 : ratsimp(M[1,1]);
+
+dn : denom(f1);
+M  : ratsimp(M * dn);
+f1 : num(f1)/factor(denom(f1));
+
+f2 : ratsimp(M[2,1]);
+f2 : num(f2)/factor(denom(f2));
+
+A : matrix([1,1],[1,-1],[-1,1]);
+At: transpose(A);
+
+dt : determinant(At.M.A);
+dt_dn_Var : ratsimp(dt*invert(At.M.A));

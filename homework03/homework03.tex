@@ -1,0 +1,381 @@
+\documentclass{homework}
+\usepackage{lipsum}
+\usepackage{alltt}
+\usepackage{cancel}
+\usepackage{amsthm}
+\usepackage{cleveref}
+\usepackage{upgreek}
+\usepackage{mathrsfs}
+\usepackage{tikz}
+\usepackage{units}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{pgfplots}
+\usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
+\usetikzlibrary{positioning}
+\usetikzlibrary{graphs}
+
+\DeclareMathOperator{\cov}{cov}
+
+\title{Kevin Joyce}
+\course{Math 491 - Big Data Analytics - Homework 3}
+\author{Kevin Joyce}
+\docdate{March 25, 2015}
+\begin{document} 
+\newcommand{\figref}[1]{\figurename~\ref{#1}}
+\renewcommand{\bar}{\overline}
+\renewcommand{\hat}{\widehat}
+\renewcommand{\SS}{\mathcal S}
+\newcommand{\HH}{\mathscr H}
+\newcommand{\mom}{\widetilde}
+\newcommand{\mle}{\widehat \Uptheta}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\todist}{\stackrel{D}\longrightarrow}
+\newcommand{\toprob}{\stackrel{p}\longrightarrow}
+\newcommand{\TTheta}{\overline{\underline \Theta} }
+\newcommand{\del}{\partial}
+\newcommand{\approxsim}{\overset{\cdotp}{\underset{\cdotp}{\sim}}}
+\newcommand{\RSS}{\ensuremath{\mathrm{RSS}}}
+\newcommand{\MSE}{\ensuremath{\mathrm{MSE}}}
+\newcommand{\SE}{\ensuremath{\mathrm{SE}}}
+\newcommand{\TSS}{\ensuremath{\mathrm{TSS}}}
+\newcommand{\Var}{\ensuremath{\mathrm{Var}}}
+\newcommand{\SSReg}{\ensuremath{\mathrm{SSReg}}}
+\newcommand{\E}{\ensuremath{\mathrm{\bf E}\,}}
+
+\renewcommand{\a}[1]{{\color{red} \it #1}}
+
+\problem{ This problem is a particular case of Problem 3 and is addressed there. }
+
+\problem{ Consider two measurements of one unknown variable $x$ with correlated noise.  Specifically, suppose that
+\begin{align*}
+  y_1 &= x + \nu_1,\\
+  y_2 &= x + \nu_2,\\ 
+\intertext{where}
+  \nu_1 &= \eps_1 + \eps_0,\\
+  \nu_2 &= \eps_2 + \eps_0,\\
+\eps_1,\eps_2\sim(0,\sigma_1^2)&,\quad \eps_0\sim(0,\sigma_0^2),\\
+\sigma_0^2 + \sigma_1^2=\sigma^2&,\quad r = \frac{\sigma_0^2}{\sigma_0^2+\sigma_1^2}.
+\end{align*}
+}
+
+\subproblem{Write it in matrix form
+$$
+  y = Ax + \nu
+$$
+and write the matrices $A$ and $S = \Var(\nu)$.
+}
+
+\begin{solution}
+  Let $y = [y_1,\,y_2]^T$, $A = [1,\,1]^T$ and 
+  $$
+  \nu = \begin{bmatrix} \eps_1 + \eps_0\\ \eps_2 + \eps_0 \end{bmatrix}.
+  $$
+  Then, the standard basis matrix representation for the variance operator of the random vector $\nu$ is given by
+  $$
+  S = \begin{bmatrix}
+    \E (\eps_1 + \eps_0)^2& \E (\eps_1 + \eps_0)(\eps_2 + \eps_0)\\
+    \E (\eps_1 + \eps_0)(\eps_2 + \eps_0)& \E (\eps_1 + \eps_0)^2\\
+  \end{bmatrix}
+  = \begin{bmatrix}
+    \sigma_1^2 + \sigma_0^2 & \sigma_0^2 \\
+   \sigma_0^2 & \sigma_1^2 + \sigma_0^2 \\
+  \end{bmatrix}
+  = \sigma^2 \begin{bmatrix}
+    1 & r \\
+    r & 1
+  \end{bmatrix}.
+  $$
+\end{solution}
+
+\subproblem{Find $\Var(\hat x)$ for the optimal linear estimate of $x$. }
+
+\begin{solution}
+  The best linear unbiased estimator is given by
+  $$
+  R = (A^*S^{-1}A)^{-1} A^*S^{-1}.
+  $$
+  Observe
+  \begin{align*}
+    \Var(\hat x) 
+      = \Var( R y ) = \Var( R \nu ) &= R S R^* \\
+      &=\Big((A^*S^{-1}A)^{-1} A^*S^{-1}\Big) S  \Big(S^{-1} A (A^*S^{-1}A)^{-1}\Big)\\
+      &\stackrel*=(A^*S^{-1}A)^{-1} \\
+      &=
+	\left(
+	[1\,\, 1]
+	\left(\frac 1{\sigma^2(1-r^2)} \begin{bmatrix} 1 & -r \\ -r & 1 \end{bmatrix} \right) 
+	\begin{bmatrix} 1 \\ 1 \end{bmatrix} \right)^{-1}\\
+      &=(1-r^2)\sigma^2 \left( [1-r\,\, 1-r] \begin{bmatrix} 1\\ 1\end{bmatrix} \right)^{-1}
+      = \frac{\sigma^2(1+r)}{2}
+  \end{align*}
+
+  Note that the best linear unbiased estimate is also the least squares estimate,
+  $$
+    \hat x = R y = \Var(\hat x) A^* S^{-1} y = \left(\frac{\sigma^2/2}{1-r} \right) \left(\frac{1}{\sigma^2} [1-r\,\,1-r]\right) y = \frac{y_1 + y_2}{2}.
+  $$
+\end{solution}
+
+\subproblem{Analyze how the variance of $\hat x$ depends on the correlation parameter $r$ for $0\le r \le 1$.  Is higher correlation good or bad for estimation in this example?  A graph might be helpful. How would you explain such behavior?}
+
+Below, we plot the variance of $\hat x$ as a function of $r$.  
+
+\begin{minipage}{.5\textwidth}
+\begin{tikzpicture}
+  \begin{axis}[axis x line=bottom,axis y line=left,ylabel=$\sigma^2 \times $,xlabel=$r$,ymax=1,xmax=1,ymin=0]
+    \addplot[domain=0:1, blue, thick] { (1+x)/2 };
+  \end{axis}
+\end{tikzpicture}
+\end{minipage}
+\hspace{1em}
+\begin{minipage}{.5\textwidth}
+In this scheme, measurements are taken independently, and, intuitively, one would expect correlation between measurements to reduce the information in the two measurements.  
+Indeed, the plot above shows that as $r\to1$, the uncertainty in the estimate increases until the case when $\sigma_0 \gg \sigma_1$, in which case the ``slow'' error term dominates the ``fast'' one so that it is as if only one replication has occurred, i.e. $\nu_1 \approx \nu_2$, and we have only one measurement of the random quantity $x + \nu_1$, and our estimate has variance $\sigma^2$.
+\end{minipage}
+
+\problem{Consider the following set of measurements of the unknown variables $x_1$ and $x_2$:
+\begin{align*}
+  y_1 &= x_1 + x_2 + \nu_1\\ 
+  y_2 &= x_1 - x_2 + \nu_2\\ 
+  y_3 &= -x_1 + x_2 + \nu_3 
+\end{align*}
+where $y_i$ are measurement results, and
+\vspace{-1em}
+\begin{align*}
+  \nu_1 = \eps_1 + \eps_0,\\
+  \nu_2 = \eps_2 + \eps_0,\\
+  \nu_3 = \eps_3 + \eps_0,
+\end{align*}
+\begin{align*}
+  \eps_1,\eps_2,\eps_3\sim(0,\sigma_1^2),\quad \eps_0\sim(0,\sigma_0^2),\\
+  \sigma_0^2+\sigma_1^2 = \sigma^2,\quad r=\frac{\sigma_0^2}{\sigma_0^2+\sigma_1^2}.
+\end{align*}
+}
+
+\subproblem{Write it in matrix form
+$$
+  y = Ax + \nu
+$$
+and write the matrices $A$ and $S = \Var(\nu)$.
+}
+
+\newpage
+\begin{solution}
+  Let $y = [y_1\,\, y_2\,\, y_3]^T, x = [x_1\,\, x_2]^T,$ 
+  $$
+  \nu = \begin{bmatrix}
+    \eps_1 + \eps_0\\
+    \eps_2 + \eps_0\\
+    \eps_3 + \eps_0\\
+  \end{bmatrix},
+  \quad\text{ and }\quad
+  A = \begin{bmatrix} 
+    1 & 1 \\
+    1 &-1 \\
+    -1& 1 \\
+  \end{bmatrix}.
+  $$
+  The standard basis representation of the variance operator of $\nu$ is
+  \begin{align*}
+  S 
+  &= \begin{bmatrix}
+    \E (\eps_1 + \eps_0)^2& \E (\eps_1 + \eps_0)(\eps_2 + \eps_0) & \E (\eps_1 + \eps_0)(\eps_3 + \eps_0)\\
+    \E (\eps_1 + \eps_0)(\eps_2 + \eps_0)& \E (\eps_1 + \eps_0)^2 & \E (\eps_1 + \eps_0)(\eps_3 + \eps_0)\\
+    \E (\eps_1 + \eps_0)(\eps_3 + \eps_0)& \E (\eps_2 + \eps_0)(\eps_3 + \eps_0)& \E (\eps_3 + \eps_0)^2\\
+  \end{bmatrix}\\
+  &= \begin{bmatrix}
+    \sigma_1^2 + \sigma_0^2 & \sigma_0^2 & \sigma_0^2\\
+    \sigma_0^2 & \sigma_1^2 + \sigma_0^2 & \sigma_0^2\\
+    \sigma_0^2 & \sigma_0^2 & \sigma_1^2 + \sigma_0^2\\
+  \end{bmatrix}\\
+  &= \sigma^2 \begin{bmatrix}
+    1 & r & r \\
+    r & 1 & r \\ 
+    r & r & 1 \\
+  \end{bmatrix}.
+\end{align*}
+In the case where measurement error is independent, this corresponds fixing $\eps_0 \equiv 0$ which implies that $r = 0$, so $S = \sigma^2 I$.
+\end{solution}
+
+\subproblem{Find the variance matrix $\Var(\hat x)$ for the optimal linear estimate of $x$ and variances $\hat x_1$ and $\hat x_2$. }
+
+\begin{solution} 
+  (Remark: These computations were done with the assistance of the computer algebra system \texttt{Maxima}).
+  Let us first calculate
+\begin{align*} 
+  A^*S^{-1}
+  & = \frac{1}{\sigma^2}
+      \begin{bmatrix}
+	1 & 1 & -1 \\
+	1 &-1 & 1 \\
+      \end{bmatrix}
+      \begin{bmatrix}
+      1 & r & r \\
+      r & 1 & r \\ 
+      r & r & 1 \\
+      \end{bmatrix}^{-1}.
+\end{align*}
+Observe,
+$$
+  \begin{bmatrix}
+    1 & r & r \\
+    r & 1 & r \\ 
+    r & r & 1 \\
+  \end{bmatrix}
+  \begin{bmatrix} 
+    -(1+r) & r & r \\ 
+    r & -(1+r) & r \\ 
+    r & r & -(1+r) \\ 
+  \end{bmatrix}
+  = 
+  \begin{bmatrix} 
+    2r^2 - r - 1 & 0 & 0\\
+    0 & 2r^2 - r - 1 & 0\\
+    0 & 0 & 2r^2 - r - 1\\
+  \end{bmatrix}
+$$
+so
+\begin{align*}
+  A^*S^{-1}
+  &= \frac{1}{\sigma^2}
+      \begin{bmatrix}
+	1 & 1 & -1 \\
+	1 &-1 & 1 \\
+      \end{bmatrix}
+      \begin{bmatrix}
+      1 & r & r \\
+      r & 1 & r \\ 
+      r & r & 1 \\
+      \end{bmatrix}^{-1} \\
+      &= 
+      \frac{1}{\sigma^2(2r - r -1)}
+      \begin{bmatrix}
+	1 & 1 & -1 \\
+	1 &-1 & 1 \\
+      \end{bmatrix}
+      \begin{bmatrix} 
+	-(1+r) & r & r \\ 
+	r & -(1+r) & r \\ 
+	r & r & -(1+r) \\ 
+      \end{bmatrix} \\
+      &=
+      \frac{1}{\sigma^2(2r+1)(r -1)}
+      \begin{bmatrix}
+	-(r+1)&-(r+1)&3r+1\\
+	-(r+1)&3r+1&-(r+1)\\ 
+      \end{bmatrix}.
+\end{align*}
+Thus,
+\begin{align*} 
+    \Var(\hat x) 
+      &\stackrel*=(A^*S^{-1}A)^{-1} \\
+      &=
+      {\sigma^2(2r+1)(r -1)}
+	\left(
+	\begin{bmatrix}-5r-3&3r+1\\ 3r+1&-5r-3\\ \end{bmatrix}
+	\right)^{-1}\\
+      &=
+	\frac{\sigma^2(2r+1)(r -1)}{(5r+3)^2 - (3r+1)^2} 
+	\begin{bmatrix}-5r-3&-3r-1\\ -3r-1&-5r-3\\ \end{bmatrix}\\
+      &=
+	\frac{\sigma^2(2r+1)(1 -r)}{8(r+1)(2r + 1)} 
+	\begin{bmatrix}5r+3&3r+1\\ 3r+1&5r+3\\ \end{bmatrix}\\
+      &=
+	\frac{\sigma^2(1 -r)}{8(r+1)} 
+	\begin{bmatrix}5r+3&3r+1\\ 3r+1&5r+3\\ \end{bmatrix}.\\
+\end{align*}
+
+Note that the symmetric  measurement scheme leads to identical variance for the optimal estimates, 
+$$\Var(\hat x_1) = \Var(\hat x_2) = \sigma^2 \frac{(1-r)(5r+3)}{8(r+1)}.$$ 
+The optimal estimates are given by
+\begin{align*}
+  \hat x &= Ry \\
+  &= \Var(\hat x) A^*S^{-1} y \\
+  &=\left(\frac{\sigma^2(1 -r)}{8(r+1)} \begin{bmatrix}5r+3&3r+1\\ 3r+1&5r+3\\ \end{bmatrix}\right)
+    \left(
+      \frac{1}{\sigma^2(2r+1)(r -1)}
+      \begin{bmatrix}
+	-(r+1)&-(r+1)&3r+1\\
+	-(r+1)&3r+1&-(r+1)\\ 
+      \end{bmatrix}\right)y\\
+    &=\frac{1}{8(2r+1)(r+1)} \begin{bmatrix}5r+3&3r+1\\ 3r+1&5r+3\\ \end{bmatrix}
+      \begin{bmatrix}
+	r+1&r+1&-(3r+1)\\
+	r+1&-(3r+1)&r+1\\ 
+      \end{bmatrix}y\\
+    &=\frac{1}{8(2r+1)(r+1)}
+      \begin{bmatrix}
+	8r^2+12r+4 & -4r^2+2r+2  & -12r^2-10r-2\\
+	8r^2+12r+4 & -12r^2-10r-2& -4r^2+2r+2\\ 
+      \end{bmatrix}y\\
+    &=\frac{1}{8(2r+1)(r+1)}
+      \begin{bmatrix}
+	4(r+1)(2r+1)& -2(r-1 )(2r+1)   &  -2(2r+1)(3r+1 )\\
+	4(r+1)(2r+1)& -2(2r+1 )(3r+1)  &  -2(r-1)(2r+1 )\\
+      \end{bmatrix} y\\
+\renewcommand{\arraystretch}{3}
+    &= \frac{1}{4}
+      \begin{bmatrix}
+	2& -\dfrac{\strut r-1}{\strut r+1}  & -\dfrac{\strut 3r+1}{\strut r+1} \\
+	2& -\dfrac{\strut 3r+1}{\strut r+1} & -\dfrac{\strut r-1}{\strut r+1} \\
+      \end{bmatrix}y
+      \\
+\end{align*}
+Note that these estimates depend on $r$, so if it is unknown, further work is required to obtain an estimate $\hat r$.
+
+These reduce to the following expressions when the noise is assumed to be independent:
+$$
+  \hat x = \frac{1}{4} \begin{bmatrix} 2 & 1 & -1 \\ 2 & -1 & 1\end{bmatrix}y,\,\,
+  \Var(\hat x) = 
+	\frac{\sigma^2}{8} 
+	\begin{bmatrix}3&1\\ 1&3\\ \end{bmatrix}\quad\text{and}\quad
+  \Var(\hat x_1) = \Var(\hat x_2) = \frac{3}{8} \sigma^2.
+$$
+\end{solution}
+
+\subproblem{Analyze how the variances of $\hat x_1$ and $\hat x_2$ depend on the correlation parameter $r$ for $0\le r \le 1$.  Is higher correlation good or bad for estimation in this example?  A graph might be helpful. How would you explain such behavior?}
+
+Below, we plot the variances of the estimates for $\hat x_1$ and $\hat x_2$.
+
+\begin{minipage}{.5\textwidth}
+\begin{tikzpicture}
+  \begin{axis}[axis x line=bottom,axis y line=left,ylabel=$\sigma^2 \times $,xlabel=$r$,ymax=1]
+    \addplot[domain=0:1, blue, thick] { (1-x)*(5*x+3)/(8*(x+1)) };
+  \end{axis}
+\end{tikzpicture}
+\end{minipage}
+\hspace{1em}
+\begin{minipage}{.5\textwidth}
+Note that in this measurement scheme, higher correlation is \emph{better} for estimating. 
+Each measurement depends on the others, since each indirectly involves both $x_1$ and $x_2$,  and, in some sense, this measurement scheme ``balances'' the error relationship in a way that gives more information when there is higher correlation between measurements.
+In the limit as $\sigma_0 \gg \sigma_1$, we have that given the three measurements $y_1,y_2,$ and $y_3$, the three quantities $x_1, x_2,$ and $\nu_1 = \nu_2 = \nu_3$ are known exactly and there is no uncertainty in the estimates.
+\end{minipage}
+
+
+
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+\lstset{language=Matlab,%
+    %basicstyle=\color{red},
+    breaklines=true,%
+    morekeywords={matlab2tikz},
+    keywordstyle=\color{blue},%
+    morekeywords=[2]{1}, keywordstyle=[2]{\color{black}},
+    identifierstyle=\color{black},%
+    stringstyle=\color{mylilas},
+    commentstyle=\color{mygreen},%
+    showstringspaces=false,%without this there will be a symbol in the places where there is a space
+    numbers=left,%
+    numberstyle={\tiny \color{black}},% size of the numbers
+    numbersep=9pt, % this defines how far the numbers are from the text
+    emph=[1]{for,end,break},emphstyle=[1]\color{red}, %some words to emphasise
+    %emph=[2]{word1,word2}, emphstyle=[2]{style},    
+}
+{
+\footnotesize
+%\lstinputlisting[language=Matlab]{problem2.m}
+%\lstinputlisting[language=Matlab]{plot_estimates.m}
+}
+\end{document} 
+
+
