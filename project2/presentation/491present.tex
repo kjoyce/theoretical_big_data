@@ -1,0 +1,140 @@
+%% To get pdf-file:    (acroread below allows you to look at pdf-file)
+%====================
+% (A) if your figures are ps-files or eps-files  (and not pdf,png,jpeg,etc.):
+%---------------------------------------------------------------------
+% latex trafficflowtalk.tex ;trafficflowtalk.tex ; dvips trafficflowtalk.dvi -o ; ps2pdf trafficflowtalk.ps ; acroread trafficflowtalk.pdf
+% 
+% (B) if your figures are pdf,png,jpeg etc (and not ps-files or eps-files)
+%---------------------------------------------------------------------
+% pdflatex beamer_example.tex 
+%
+\documentclass[t]{beamer}
+% Ben's option:
+\usecolortheme{whale}       
+% Sophie's option:
+%\usepackage{beamerthemeBerkeley}
+%
+\usefonttheme[onlymath]{serif}   
+\usepackage{graphicx}
+\usepackage{caption}
+
+\usepackage{subfig}
+\usepackage{commath}
+
+\setbeamertemplate{navigation symbols}{}  % turns off annoying nav. symbols
+
+\title{Real Time Signal Processing with Symmetric and Asymmetric Support Intervals}
+\author{Keven Joyce and Lia Harrington \\
+       University of Montana}
+\date{May 14, 2015}
+ 
+% for a recurring outline
+% (this defines, what happens whenever you use \section{...}, namely
+%     slide is created with title "Universality ..." and table of contents
+%     which includes all section titles and highlights current section)
+\AtBeginSection[]  
+{
+\begin{frame}
+\frametitle{Outline} 
+\tableofcontents[currentsection] 
+\end{frame}  
+}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\titlepage
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction and Motivation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Importance of Real Time Signal Processing}
+\vspace{.3cm}
+\structure{What is real time signal processing?}
+\vspace{.3cm}
+\begin{itemize}
+\item Applications
+\begin{itemize}
+\item Speech recognition
+\item Audio signal processing
+\item Video compression
+\item Weather forecasting
+\item Economic forecasting
+\item Medical imagining (e.g., CAT, MRI)
+\item And more...
+\end{itemize}
+\end{itemize}
+%\begin{figure}
+%\includegraphics[scale=.4]{women_stem.png}
+%\caption{STEM Education Data and Trends NSF}
+%\end{figure} 
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Problem Outline}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{What is the problem?}
+\structure{Goal:} We wish to reconstruct some generated signal $\hat{x}$ that has been distorted by some error and convolution processes. \newline \vspace{.5cm}
+
+\structure{Solution:} Take the convolution inverse of $\hat{x}$ to reconstruct the signal. 
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Problem Approach and Steps} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Problem Simulation}
+\structure{Specify the main ingredients of simulated measurement system:}
+\begin{itemize}
+\item Finitely supported point spread function (influence function), 
+  \begin{itemize}
+    \item Symmetric case: $a_i = \frac 1{10}$ for $|i| < 15$.  
+    \item Asymmetric case: $a_i = \frac 2{10} e^{-i/40}$ for $0\le i\le 40$.
+  \end{itemize}
+\item The covariance function $\phi$ for the signal $x$ is given by 
+$$
+\phi = Cov(x) = b*b^{*}
+$$
+  where $b_i = \frac {21}{100}(1-|i|)$ for $|i| \le 7$. 
+\item Measurement noise is modeled with a zero mean Gaussian $\nu$ with a specified $\sigma^2 = \frac 1{100}$.
+\item Finally, the data is given by
+$$
+  y = a * x + \nu
+$$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Reconstruction Operator $R$}  
+  \begin{itemize}
+    \item Following Lecture 13, we seek a reconstruction operator $R$ that is given by convolution with $r$ supported on a specified interval $\Delta$, so that $\widehat x = r*x$.
+    \item Further, it was shown that
+    $$
+      H(r) = E( \widehat x - x )^2 = \langle P (r - P^{-1}q), r- P^{-1}q \rangle_{\Delta} + f_0 - \langle q, P^{-1}q\rangle_{\Delta}
+    $$
+    where $P$ is the operator associated with convolution by $p = a*\phi*a^* + \sigma^2\delta$ and $q = a*\phi$.
+    \item So, for a given $\Delta$, the reconstruction kernel is uniquely determined by \alert{$r = P^{-1}q$}, and 
+    $$
+      \mathrm{Var}\, \widehat x = H_{min} = \alert{f_0 - \langle q, r\rangle_{\Delta}}.
+    $$
+  \end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Code Comments}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results and Conclusions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{References}
+
+[1] Golubtsov, P. (2015). Theoretical Big Data Analytics course notes.
+
+\end{frame}
+
+\end{document}
+
+
+
+
+\end{document}
