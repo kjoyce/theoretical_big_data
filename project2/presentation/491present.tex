@@ -17,6 +17,7 @@
 \usefonttheme[onlymath]{serif}   
 \usepackage{graphicx}
 \usepackage{caption}
+\usepackage{braket}
 
 \usepackage{subfig}
 \usepackage{commath}
@@ -66,10 +67,6 @@
 \item And more...
 \end{itemize}
 \end{itemize}
-%\begin{figure}
-%\includegraphics[scale=.4]{women_stem.png}
-%\caption{STEM Education Data and Trends NSF}
-%\end{figure} 
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Problem Outline}
@@ -84,41 +81,64 @@
 \section{Problem Approach and Steps} 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-\frametitle{Problem Simulation}
+\frametitle{Problem Approach Overview}
+\begin{enumerate}
+\item Specify problem settings
+\begin{itemize}
+\item $y = a*x+\nu, \hspace{.2cm} \nu ~(0,\sigma^2\delta). $
+\item $ \hat{x} = r*y$ 
+\begin{itemize}
+\item $ r = P^{-1}q$ 
+\end{itemize}
+\item Choose some $\Delta = [-d,d]$  $\rightarrow $ initial estimate of $x$
+\item Choose some $\Delta = [T,\tau]$  $\rightarrow $ initial estimate of $x$
+\end{itemize}
+\item Compute optimal $\Delta$ for $r$
+\begin{itemize}
+\item $H(\Delta) = E(\hat{x}_{i} - x_{i})^2 = f_{0} - \braket{q,P^-1q}\Delta$
+\item Plot $H(\Delta)$ vs $d$ $\rightarrow$ optimal $d$ $\rightarrow$ optimal $r$
+\end{itemize}
+\item Simulation of measurement and processing
+\item Illustrate the result of estimation
+\begin{itemize}
+\item $\sqrt{E(\hat{x}_{i} - x_{i}})^2 = \sqrt{H}$
+\end{itemize}
+\end{enumerate}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Problem Strategy: Step 1}
 \structure{Specify the main ingredients of simulated measurement system:}
 \begin{itemize}
-\item Finitely supported point spread function (influence function), 
-  \begin{itemize}
-    \item Symmetric case: $a_i = \frac 1{10}$ for $|i| < 15$.  
-    \item Asymmetric case: $a_i = \frac 2{10} e^{-i/40}$ for $0\le i\le 40$.
-  \end{itemize}
-\item The covariance function $\phi$ for the signal $x$ is given by 
-$$
+\item Specify point spread function (influence function ) a, 
+\begin{itemize}
+\item Symmetric
+\item Asymmetric
+\end{itemize}
+\item Covariance function $\phi$ for the signal $x$: 
+\begin{equation}
 \phi = Cov(x) = b*b^{*}
-$$
-  where $b_i = \frac {21}{100}(1-|i|)$ for $|i| \le 7$. 
-\item Measurement noise is modeled with a zero mean Gaussian $\nu$ with a specified $\sigma^2 = \frac 1{100}$.
-\item Finally, the data is given by
-$$
-  y = a * x + \nu
-$$
+\end{equation}
+\item Variance $\sigma^2$ of the independent components of the additive random noise $\nu$
+\begin{equation}
+y = a*x+\nu, \hspace{.2cm} \nu ~(0,\sigma^2\delta). 
+\end{equation}
+\item Choose support interval $\Delta = [-d,d] $ or $\Delta = [T,\tau]$
 \end{itemize}
 \end{frame}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-  \frametitle{Reconstruction Operator $R$}  
-  \begin{itemize}
-    \item Following Lecture 13, we seek a reconstruction operator $R$ that is given by convolution with $r$ supported on a specified interval $\Delta$, so that $\widehat x = r*x$.
-    \item Further, it was shown that
-    $$
-      H(r) = E( \widehat x - x )^2 = \langle P (r - P^{-1}q), r- P^{-1}q \rangle_{\Delta} + f_0 - \langle q, P^{-1}q\rangle_{\Delta}
-    $$
-    where $P$ is the operator associated with convolution by $p = a*\phi*a^* + \sigma^2\delta$ and $q = a*\phi$.
-    \item So, for a given $\Delta$, the reconstruction kernel is uniquely determined by \alert{$r = P^{-1}q$}, and 
-    $$
-      \mathrm{Var}\, \widehat x = H_{min} = \alert{f_0 - \langle q, r\rangle_{\Delta}}.
-    $$
-  \end{itemize}
+\frametitle{Signal and Covariance Setup}
+
+\begin{columns}[t]
+\column{.9\textwidth}
+\centering
+\includegraphics[scale=.3]{signal_setup.pdf}\\
+%\vspace{.2cm}
+%\column{.5\textwidth}
+\includegraphics[scale=.3]{covariance_psf_setup.pdf}
+\end{columns}
+
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Code Comments}
