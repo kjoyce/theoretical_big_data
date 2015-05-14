@@ -1,0 +1,27 @@
+\frametitle{ Finitely Supported Function Data Type }
+\begin{itemize}
+  \item We added the following methods
+\end{itemize}
+%\lstinputlisting[language=Matlab,firstline=1,lastline=8]{../FinSupFun.m}
+\begin{lstlisting}[language=Matlab,basicstyle=\tiny]
+function c = restricted_to(a,l,r) % Restrict support to [l,r], if [l,r] is bigger than [a.l,a.r], then pad with zeroes.
+    L = max(l,a.l); % Left endpoint of restricted interval
+    R = min(r,a.r); % Right endpoint of restricted interval
+    ...
+end
+
+function c = mldivide(a,b) % \ De-convolution by constructing toeplitz matrix. a must be symmetric
+  n = length(b.f);
+  toeplitz_row = [a.f((a.r+1):end), zeros(1, n-(a.r))];% This needs to be from the center of p and padded with zeros
+  ...
+end
+\end{lstlisting}
+\begin{itemize}
+\item so computing $P^{-1}q$ on a restriced interval are easily implemented as follows
+\end{itemize}
+\begin{lstlisting}[language=Matlab,basicstyle=\tiny]
+q_delta1 = q.restricted_to(-d,d); % Restrict (or zero pad) to [-d,d].
+q_delta2 = q.restricted_to(-T,tau); % Restrict (or zero pad) to [-T,tau].
+r1 = p \ q_delta1;
+r2 = p \ q_delta2;
+\end{lstlisting}
