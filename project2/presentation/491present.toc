@@ -2,5 +2,5 @@
 \beamer@sectionintoc {1}{Introduction and Motivation}{2}{0}{1}
 \beamer@sectionintoc {2}{Problem Outline}{4}{0}{2}
 \beamer@sectionintoc {3}{Problem Approach and Steps}{6}{0}{3}
-\beamer@sectionintoc {4}{Code Comments}{10}{0}{4}
-\beamer@sectionintoc {5}{Results and Conclusions}{11}{0}{5}
+\beamer@sectionintoc {4}{Code Comments}{9}{0}{4}
+\beamer@sectionintoc {5}{Results and Conclusions}{10}{0}{5}
